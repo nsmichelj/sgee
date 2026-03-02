@@ -1,5 +1,7 @@
 import { Container } from "@/components/container";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import db from "@/lib/db";
+import { authorities } from "@/lib/db/schema";
 import { User } from "lucide-react";
 import { cacheLife } from "next/cache";
 import {
@@ -10,33 +12,15 @@ import {
   SectionTitle,
 } from "../section";
 
-const team = [
-  {
-    fullName: "Dr. Carlos Menendez",
-    role: "Director General",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
-    initials: "CM",
-  },
-  {
-    fullName: "Dra. Lucia Rivera",
-    role: "Directora Académica",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
-    initials: "LR",
-  },
-  {
-    fullName: "Prof. Alberto Soto",
-    role: "Coordinador de Proyectos",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-    initials: "AS",
-  },
-];
-
 export async function Leadership() {
   "use cache";
   cacheLife("max");
+
+  const team = await db.select().from(authorities);
+
+  if (team.length === 0) {
+    return null;
+  }
 
   return (
     <Section>
@@ -54,7 +38,10 @@ export async function Leadership() {
           {team.map((member) => (
             <div key={member.fullName} className="text-center">
               <Avatar className="size-32 mx-auto mb-4">
-                <AvatarImage src={member.image} alt={member.fullName} />
+                <AvatarImage
+                  src={member.photoUrl || ""}
+                  alt={member.fullName}
+                />
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   <User className="size-10" />
                 </AvatarFallback>

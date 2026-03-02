@@ -1,5 +1,12 @@
 import { Container } from "@/components/container";
 import {
+  Section,
+  SectionDescription,
+  SectionHeader,
+  SectionTag,
+  SectionTitle,
+} from "@/components/public/section";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -7,20 +14,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import db from "@/lib/db";
+import { photos as photosTable } from "@/lib/db/schema";
+import { desc, eq } from "drizzle-orm";
 import { cacheLife } from "next/cache";
-import {
-  Section,
-  SectionDescription,
-  SectionHeader,
-  SectionTag,
-  SectionTitle,
-} from "../section";
-
-const images = Array(8).fill(0);
+import Image from "next/image";
 
 export async function Gallery() {
   "use cache";
   cacheLife("max");
+
+  const photos = await db
+    .select()
+    .from(photosTable)
+    .where(eq(photosTable.isPublic, true))
+    .orderBy(desc(photosTable.createdAt))
+    .limit(8);
+
+  if (photos.length === 0) {
+    return null;
+  }
 
   return (
     <Section>
@@ -35,29 +48,32 @@ export async function Gallery() {
         </SectionHeader>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {images.map((_, index) => (
+          {photos.map((photo, index) => (
             <Dialog key={index}>
               <DialogTrigger asChild>
-                <div className="aspect-square bg-gray-300 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer">
-                  <div className="w-full h-full bg-linear-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                    <span className="text-gray-500 text-sm">
-                      2026-{String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                </div>
+                <Image
+                  src={photo.url}
+                  alt={photo.title}
+                  width={500}
+                  height={500}
+                  className="w-full h-full"
+                />
               </DialogTrigger>
-              <DialogContent className="max-w-7xl border-0 bg-transparent p-0">
+              <DialogContent
+                className="w-full max-w-7xl border-0 bg-transparent p-0 shadow-none"
+                showCloseButton={false}
+              >
                 <DialogHeader className="sr-only">
                   <DialogTitle>Galería de Momentos</DialogTitle>
                   <DialogDescription>Galería de Momentos</DialogDescription>
                 </DialogHeader>
-
-                <div className="aspect-square bg-gray-300 rounded-lg overflow-hidden hover:shadow-lg transition">
-                  <div className="w-full h-full bg-linear-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                    <span className="text-gray-500 text-sm">
-                      2026-{String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
+                <div className="aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={photo.url}
+                    fill
+                    alt={photo.title}
+                    className="h-full w-full object-contain"
+                  />
                 </div>
               </DialogContent>
             </Dialog>
