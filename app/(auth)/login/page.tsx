@@ -5,20 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
 export default function LoginPage() {
-  // useEffect(() => {
-  //   const a = async () => {
-  //     const b = await authClient.signUp.email({
-  //       email: "nunezsalmeronm@gmail.com",
-  //       password: "12345678",
-  //       name: "Michel",
-  //       username: "nsmichelj",
-  //     });
-
-  //     console.log(b);
-  //   };
-
-  //   a();
-  // });
   return (
     <div className="min-h-screen bg-secondary flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
