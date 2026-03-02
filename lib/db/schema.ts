@@ -2,10 +2,12 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
+  integer,
   pgTable,
   text,
   timestamp,
   uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -86,6 +88,34 @@ export const verification = pgTable(
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
+
+export const authorities = pgTable("authorities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fullName: varchar("full_name", { length: 100 }).notNull(),
+  role: varchar("role", { length: 100 }).notNull(),
+  photoUrl: text("photo_url"),
+  order: integer("order").notNull().default(0),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const photos = pgTable("photos", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  title: varchar("title", { length: 255 }).notNull(),
+  caption: text("caption"),
+
+  url: text("url").notNull(),
+
+  isPublic: boolean("is_public").default(true).notNull(),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
