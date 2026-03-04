@@ -10,7 +10,7 @@ export default function Page() {
       <PanelHeader>
         <PanelTitle>Dashboard</PanelTitle>
         <PanelDescription>
-          Vienvenido al panel de control del SGEE Pedro Luis Cedeño
+          Bienvenido al panel de control del SGEE Pedro Luis Cedeño
         </PanelDescription>
       </PanelHeader>
     </div>
