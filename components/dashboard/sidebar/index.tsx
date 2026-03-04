@@ -1,6 +1,6 @@
 "use client";
 
-import { Command, School } from "lucide-react";
+import { Command, School, User } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/dashboard/sidebar/nav-main";
@@ -32,6 +32,13 @@ const data = [
         url: "/dashboard/gallery",
       },
     ],
+  },
+  {
+    title: "Usuarios",
+    url: "/dashboard/users",
+    icon: User,
+    isActive: false,
+    items: [],
   },
 ];
 
