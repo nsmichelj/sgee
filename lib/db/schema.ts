@@ -3,12 +3,22 @@ import {
   boolean,
   index,
   integer,
+  pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+
+export const activityStatusEnum = pgEnum("activity_status", [
+  "draft",
+  "planned",
+  "approved",
+  "completed",
+  "cancelled",
+  "postponed",
+]);
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -112,14 +122,32 @@ export const photos = pgTable("photos", {
   url: text("url").notNull(),
 
   isPublic: boolean("is_public").default(true).notNull(),
-
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const schoolNews = pgTable("school_news", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  slug: varchar("slug", { length: 250 }).notNull().unique(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  coverImageUrl: text("cover_image_url"),
+  createdBy: uuid("created_by").references(() => user.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  createdNews: many(schoolNews),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -132,6 +160,13 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const schoolNewsRelations = relations(schoolNews, ({ one }) => ({
+  createdBy: one(user, {
+    fields: [schoolNews.createdBy],
     references: [user.id],
   }),
 }));
