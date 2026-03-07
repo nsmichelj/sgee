@@ -4,6 +4,7 @@ import {
   Hero,
   Leadership,
   MisionVision,
+  RecentNews,
 } from "@/components/public/home";
 
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
       <Hero />
       <MisionVision />
       <Leadership />
+      <RecentNews />
       <Gallery />
       <Contact />
     </>
