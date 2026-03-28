@@ -25,6 +25,7 @@ export async function RecentNews() {
         },
       },
     },
+    limit: 3,
   });
 
   if (news.length === 0) {
