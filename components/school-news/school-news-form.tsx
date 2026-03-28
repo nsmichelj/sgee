@@ -79,7 +79,7 @@ export function SchoolNewsForm({
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={field.name}>
-                  Contenido de la Noticia
+                  Resumen de la Noticia
                 </FieldLabel>
                 <Textarea
                   id={field.name}
