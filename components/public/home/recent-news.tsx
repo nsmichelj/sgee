@@ -33,28 +33,38 @@ export async function RecentNews() {
   }
 
   return (
-    <Section className="bg-background">
+    <Section className="bg-white">
       <Container>
         <SectionHeader>
-          <SectionTag>Noticias</SectionTag>
-          <SectionTitle>Últimas Noticias</SectionTitle>
+          <SectionTag>Noticias y Eventos</SectionTag>
+          <SectionTitle>Últimas Actualizaciones</SectionTitle>
           <SectionDescription>
-            Mantente al día con las noticias más recientes de nuestra
-            institución educativa.
+            Mantente al tanto de los acontecimientos más importantes y las
+            novedades de nuestra comunidad educativa.
           </SectionDescription>
         </SectionHeader>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {news.map((item) => (
-            <Link href={`/school_news/${item.slug}`} key={item.id}>
+            <Link
+              href={`/school_news/${item.slug}`}
+              key={item.id}
+              className="group"
+            >
               <SchoolNewsCard {...item} />
             </Link>
           ))}
         </div>
 
-        <div className="text-center mt-8">
-          <Link href="/school_news">
-            <Button>Ver todas las noticias</Button>
-          </Link>
+        <div className="text-center mt-12">
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full px-8 border-primary text-primary hover:bg-primary hover:text-white"
+            asChild
+          >
+            <Link href="/school_news">Explorar todas las noticias</Link>
+          </Button>
         </div>
       </Container>
     </Section>
