@@ -15,7 +15,7 @@ import {
 import { authClient } from "@/lib/auth/client";
 import { loginFormSchema } from "@/lib/validations/auth";
 import { useForm } from "@tanstack/react-form";
-import { Loader2, Lock, Mail } from "lucide-react";
+import { ArrowRight, Loader2, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -40,7 +40,7 @@ export function LoginForm() {
             if (ctx.error.code === "INVALID_EMAIL_OR_PASSWORD") {
               toast.error("Usuario o Contraseña incorrectos");
             } else {
-              toast.error("Ha ocurrido un error durante el registro");
+              toast.error("Ha ocurrido un error durante el inicio de sesión");
               console.log(ctx.error);
             }
           },
@@ -69,7 +69,7 @@ export function LoginForm() {
               field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field>
-                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                <FieldLabel htmlFor={field.name}>Correo Electrónico</FieldLabel>
                 <InputGroup>
                   <InputGroupInput
                     id={field.name}
@@ -78,9 +78,10 @@ export function LoginForm() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     type="email"
+                    placeholder="tucorreo@educacion.edu.ve"
                   />
-                  <InputGroupAddon align="inline-start">
-                    <Mail className="text-muted-foreground" />
+                  <InputGroupAddon align="inline-end" className="pr-4">
+                    <Mail className="size-5 group-focus-within/input-group:text-foreground transition-colors" />
                   </InputGroupAddon>
                 </InputGroup>
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -104,9 +105,10 @@ export function LoginForm() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     type="password"
+                    placeholder="••••••••"
                   />
-                  <InputGroupAddon align="inline-start">
-                    <Lock className="text-muted-foreground" />
+                  <InputGroupAddon align="inline-end" className="pr-4">
+                    <Lock className="size-5 group-focus-within/input-group:text-foreground transition-colors" />
                   </InputGroupAddon>
                 </InputGroup>
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -119,17 +121,20 @@ export function LoginForm() {
           selector={(state) => [state.canSubmit, state.isSubmitting]}
         >
           {([canSubmit, isSubmitting]) => (
-            <Field>
+            <Field className="pt-2">
               <Button
                 type="submit"
                 form="signin-form"
-                className="w-full"
+                className="group"
                 disabled={!canSubmit}
               >
                 {isSubmitting ? (
                   <Loader2 className="animate-spin" />
                 ) : (
-                  "Iniciar Sección"
+                  <>
+                    <span>Iniciar Sesión</span>
+                    <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                  </>
                 )}
               </Button>
             </Field>
