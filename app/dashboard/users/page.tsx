@@ -1,6 +1,9 @@
 import {
+  PanelContainer,
   PanelDescription,
   PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderContent,
   PanelTitle,
 } from "@/components/dashboard/panel";
 import CreateUserModal from "@/components/users/create-user-modal";
@@ -8,17 +11,22 @@ import { ListUsers } from "@/components/users/users-table/list-users";
 
 export default function DashboardUsersPage() {
   return (
-    <div>
+    <PanelContainer>
       <PanelHeader>
-        <PanelTitle>Gestión de Usuarios</PanelTitle>
-        <PanelDescription>
-          Administra los usuarios del sistema.
-        </PanelDescription>
-
-        <CreateUserModal />
+        <PanelHeaderContent>
+          <PanelTitle>
+            Gestión de <span className="text-primary">Usuarios</span>
+          </PanelTitle>
+          <PanelDescription>
+            Administra los usuarios del sistema.
+          </PanelDescription>
+        </PanelHeaderContent>
+        <PanelHeaderActions>
+          <CreateUserModal />
+        </PanelHeaderActions>
       </PanelHeader>
 
       <ListUsers />
-    </div>
+    </PanelContainer>
   );
 }
