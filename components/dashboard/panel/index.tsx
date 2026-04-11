@@ -1,5 +1,4 @@
-import { PanelDescription } from "./panel-description";
-import { PanelHeader } from "./panel-header";
-import { PanelTitle } from "./panel-title";
-
-export { PanelDescription, PanelHeader, PanelTitle };
+export * from "./panel-container";
+export * from "./panel-description";
+export * from "./panel-header";
+export * from "./panel-title";

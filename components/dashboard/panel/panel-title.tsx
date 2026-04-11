@@ -7,14 +7,14 @@ export function PanelTitle({
   ...props
 }: ComponentProps<"h2">) {
   return (
-    <h2
+    <h1
       className={cn(
-        "text-2xl md:text-3xl font-bold text-foreground",
+        "text-4xl sm:text-5xl font-black tracking-tight text-foreground leading-[1.1] max-w-2xl",
         className,
       )}
       {...props}
     >
       {children}
-    </h2>
+    </h1>
   );
 }
