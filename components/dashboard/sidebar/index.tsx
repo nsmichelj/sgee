@@ -1,6 +1,6 @@
 "use client";
 
-import { Command, Newspaper, School, User } from "lucide-react";
+import { Newspaper, School, User } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/dashboard/sidebar/nav-main";
@@ -11,21 +11,31 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 import Link from "next/link";
 
 const data = [
   {
-    title: "Intitución",
+    title: "Institución",
     url: "#",
     icon: School,
-    isActive: true,
     items: [
       {
         title: "Autoridades",
         url: "/dashboard/authorities",
+      },
+      {
+        title: "Personal",
+        url: "/dashboard/personal",
+      },
+      {
+        title: "Estudiantes",
+        url: "/dashboard/students",
+      },
+      {
+        title: "Periodos Escolares",
+        url: "/dashboard/school-periods",
       },
       {
         title: "Galeria",
@@ -37,36 +47,34 @@ const data = [
     title: "Noticias",
     url: "/dashboard/school_news",
     icon: Newspaper,
-    isActive: false,
     items: [],
   },
   {
     title: "Usuarios",
     url: "/dashboard/users",
     icon: User,
-    isActive: false,
     items: [],
   },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
+    <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">SGEE</span>
-                  <span className="truncate text-xs">Pedro Luis Cedeño</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <Link href="/" className="my-6">
+            <Image
+              src="/institutional_logo.png"
+              width={100}
+              height={109}
+              alt="Logo Insitucional Unidad Educativa Pedro Luis Cedeño"
+              className="max-w-30 h-auto mx-auto"
+            />
+            <div className="grid flex-1 text-lg leading-tight text-center">
+              <span className="truncate font-medium">SGEE</span>
+              <span className="truncate text-md">Pedro Luis Cedeño</span>
+            </div>
+          </Link>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>

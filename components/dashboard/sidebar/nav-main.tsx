@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight, Home, type LucideIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import {
   Collapsible,
@@ -27,18 +28,28 @@ export function NavMain({
     title: string;
     url: string;
     icon: LucideIcon;
-    isActive?: boolean;
     items?: {
       title: string;
       url: string;
     }[];
   }[];
 }) {
+  const pathname = usePathname();
+
+  const isMainItemActive = (itemUrl: string) => {
+    if (itemUrl === "/dashboard") return pathname === "/dashboard";
+    return pathname === itemUrl || pathname.startsWith(itemUrl + "/");
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Administración</SidebarGroupLabel>
       <SidebarMenuItem>
-        <SidebarMenuButton tooltip="Inicio" asChild isActive={true}>
+        <SidebarMenuButton
+          tooltip="Inicio"
+          asChild
+          isActive={pathname === "/dashboard"}
+        >
           <Link href="/dashboard">
             <Home />
             <span>Inicio</span>
@@ -47,9 +58,13 @@ export function NavMain({
       </SidebarMenuItem>
       <SidebarMenu>
         {items.map((item) => (
-          <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
+          <Collapsible key={item.title} asChild defaultOpen={true}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                isActive={isMainItemActive(item.url)}
+              >
                 <Link href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>
@@ -67,7 +82,13 @@ export function NavMain({
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={
+                              pathname === subItem.url ||
+                              pathname.startsWith(subItem.url + "/")
+                            }
+                          >
                             <Link href={subItem.url}>
                               <span>{subItem.title}</span>
                             </Link>
