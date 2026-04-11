@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 bg-background sticky top-0 border-b border-border z-50">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />

@@ -1,6 +1,10 @@
 import {
+  PanelContainer,
   PanelDescription,
   PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderBadge,
+  PanelHeaderContent,
   PanelTitle,
 } from "@/components/dashboard/panel";
 import { ListSchoolNews } from "@/components/school-news/school-news-table";
@@ -10,20 +14,31 @@ import Link from "next/link";
 
 export default function SchoolarNewsPage() {
   return (
-    <div>
+    <PanelContainer>
       <PanelHeader>
-        <PanelTitle>Gestión de Noticias Escolares</PanelTitle>
-        <PanelDescription>
-          Administra las noticias escolares de la institución.
-        </PanelDescription>
-        <Button asChild>
-          <Link href="/dashboard/school_news/create">
-            <Newspaper /> Crear Noticia
-          </Link>
-        </Button>
+        <PanelHeaderContent>
+          <PanelHeaderBadge>Configuracion Academica</PanelHeaderBadge>
+          <PanelTitle>
+            Gestiona tus{" "}
+            <span className="text-primary">Periodos Escolares</span>
+          </PanelTitle>
+          <PanelDescription>
+            Organiza los ciclos educativos y lapsos pedagógicos para el control
+            académico de la institución.
+          </PanelDescription>
+        </PanelHeaderContent>
+        <PanelHeaderActions>
+          <Button asChild>
+            <Link href="/dashboard/school_news/create">
+              <Newspaper /> Crear Noticia
+            </Link>
+          </Button>
+        </PanelHeaderActions>
       </PanelHeader>
 
-      <ListSchoolNews />
-    </div>
+      <div>
+        <ListSchoolNews />
+      </div>
+    </PanelContainer>
   );
 }
