@@ -25,6 +25,25 @@ export async function getSchoolPeriods() {
   return periods;
 }
 
+export async function getActiveSchoolPeriod() {
+  const period = await db.query.schoolPeriods.findFirst({
+    where: (t, { eq }) => eq(t.isActive, true),
+    with: {
+      pedagogicalMoments: {
+        columns: {
+          id: true,
+          type: true,
+          startDate: true,
+          endDate: true,
+        },
+        orderBy: (t, { asc }) => [asc(t.startDate)],
+      },
+    },
+  });
+
+  return period ?? null;
+}
+
 export async function createSchoolPeriodAction(data: schoolPeriodSchema) {
   try {
     await db.transaction(async (tx) => {

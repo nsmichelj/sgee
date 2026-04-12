@@ -1,6 +1,6 @@
 "use client";
 
-import { Newspaper, School, User } from "lucide-react";
+import { CalendarDays, Newspaper, School, User } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/dashboard/sidebar/nav-main";
@@ -47,6 +47,12 @@ const data = [
     title: "Noticias",
     url: "/dashboard/school_news",
     icon: Newspaper,
+    items: [],
+  },
+  {
+    title: "Calendario",
+    url: "/dashboard/calendar-events",
+    icon: CalendarDays,
     items: [],
   },
   {

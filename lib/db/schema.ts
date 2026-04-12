@@ -7,6 +7,7 @@ import {
   pgEnum,
   pgTable,
   text,
+  time,
   timestamp,
   uniqueIndex,
   uuid,
@@ -26,6 +27,21 @@ export const pedagogicalMomentEnum = pgEnum("pedagogical_moment", [
   "FIRST",
   "SECOND",
   "THIRD",
+]);
+
+export const calendarEventTypeEnum = pgEnum("calendar_event_type", [
+  "pedagogical", // pedagogico
+  "administrative", // administrativo
+  "didactic", // didactico
+  "efemeride", // efemeride
+  "holiday", // asueto
+  "other", // otro
+]);
+
+export const impactTypeEnum = pgEnum("impact_type", [
+  "low", // bajo
+  "medium", // medio
+  "high", // alto
 ]);
 
 export const user = pgTable("user", {
@@ -182,7 +198,10 @@ export const students = pgTable("students", {
   phone: varchar("phone", { length: 100 }).notNull(),
   address: varchar("address", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const schoolPeriods = pgTable("school_periods", {
@@ -221,17 +240,196 @@ export const pedagogicalMoments = pgTable(
   ],
 );
 
+export const calendarEvents = pgTable("calendar_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  startDate: date("start_date", { mode: "date" }).notNull(),
+  endDate: date("end_date", { mode: "date" }).notNull(),
+  type: calendarEventTypeEnum("type").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const calendarActivities = pgTable("calendar_activities", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  schoolPeriodId: uuid("school_period_id")
+    .references(() => schoolPeriods.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  pedagogicalMomentId: uuid("pedagogical_moment_id").references(
+    () => pedagogicalMoments.id,
+    {
+      onDelete: "set null",
+    },
+  ),
+  calendarEventId: uuid("calendar_event_id")
+    .references(() => calendarEvents.id, {
+      onDelete: "set null",
+    })
+    .notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  startDate: date("start_date", { mode: "date" }).notNull(),
+  startTime: time("start_time").notNull(),
+  endDate: date("end_date", { mode: "date" }).notNull(),
+  endTime: time("end_time").notNull(),
+  type: calendarEventTypeEnum("type").notNull(),
+  status: activityStatusEnum("status").notNull().default("planned"),
+  results: text("results"),
+  observations: text("observations"),
+  impact: impactTypeEnum("impact").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const calendarActivitiesStudents = pgTable(
+  "calendar_activities_students",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    calendarActivityId: uuid("calendar_activity_id")
+      .references(() => calendarActivities.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    studentId: uuid("student_id")
+      .references(() => students.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("unique_activity_student").on(
+      t.calendarActivityId,
+      t.studentId,
+    ),
+  ],
+);
+
+export const calendarActivitiesPersonal = pgTable(
+  "calendar_activities_personal",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    calendarActivityId: uuid("calendar_activity_id")
+      .references(() => calendarActivities.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    personalId: uuid("personal_id")
+      .references(() => personal.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("unique_activity_personal").on(
+      t.calendarActivityId,
+      t.personalId,
+    ),
+  ],
+);
+
+export const calendarActivitiesRelations = relations(
+  calendarActivities,
+  ({ one }) => ({
+    schoolPeriod: one(schoolPeriods, {
+      fields: [calendarActivities.schoolPeriodId],
+      references: [schoolPeriods.id],
+    }),
+    pedagogicalMoment: one(pedagogicalMoments, {
+      fields: [calendarActivities.pedagogicalMomentId],
+      references: [pedagogicalMoments.id],
+    }),
+  }),
+);
+
+export const calendarActivitiesEvidence = pgTable(
+  "calendar_activities_evidence",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    calendarActivityId: uuid("calendar_activity_id")
+      .references(() => calendarActivities.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    url: text("evidence_url").notNull(),
+    size: integer("size").notNull(),
+    type: varchar("type", { length: 100 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+);
+
+export const calendarActivitiesStudentsRelations = relations(
+  calendarActivitiesStudents,
+  ({ one }) => ({
+    calendarActivity: one(calendarActivities, {
+      fields: [calendarActivitiesStudents.calendarActivityId],
+      references: [calendarActivities.id],
+    }),
+    student: one(students, {
+      fields: [calendarActivitiesStudents.studentId],
+      references: [students.id],
+    }),
+  }),
+);
+
+export const calendarActivitiesPersonalRelations = relations(
+  calendarActivitiesPersonal,
+  ({ one }) => ({
+    calendarActivity: one(calendarActivities, {
+      fields: [calendarActivitiesPersonal.calendarActivityId],
+      references: [calendarActivities.id],
+    }),
+    personal: one(personal, {
+      fields: [calendarActivitiesPersonal.personalId],
+      references: [personal.id],
+    }),
+  }),
+);
+
+export const calendarActivitiesEvidenceRelations = relations(
+  calendarActivitiesEvidence,
+  ({ one }) => ({
+    calendarActivity: one(calendarActivities, {
+      fields: [calendarActivitiesEvidence.calendarActivityId],
+      references: [calendarActivities.id],
+    }),
+  }),
+);
+
 export const schoolPeriodsRelations = relations(schoolPeriods, ({ many }) => ({
   pedagogicalMoments: many(pedagogicalMoments),
 }));
 
 export const pedagogicalMomentsRelations = relations(
   pedagogicalMoments,
-  ({ one }) => ({
+  ({ one, many }) => ({
     schoolPeriod: one(schoolPeriods, {
       fields: [pedagogicalMoments.schoolPeriodId],
       references: [schoolPeriods.id],
     }),
+    activities: many(calendarActivities),
   }),
 );
 
@@ -258,6 +456,10 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const schoolNewsRelations = relations(schoolNews, ({ one }) => ({
   createdBy: one(user, {
     fields: [schoolNews.createdBy],
+    references: [user.id],
+  }),
+  approvedBy: one(user, {
+    fields: [schoolNews.approvedBy],
     references: [user.id],
   }),
 }));
