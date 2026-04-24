@@ -7,6 +7,18 @@ import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "../ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 interface StudentFormProps {
   initialData?: Partial<studentFormSchema>;
@@ -28,6 +40,7 @@ export function StudentForm({
       email: initialData?.email ?? "",
       phone: initialData?.phone ?? "",
       address: initialData?.address ?? "",
+      birthDate: initialData?.birthDate ?? new Date(),
     } as studentFormSchema,
     validators: {
       onSubmit: studentFormSchema,
@@ -114,21 +127,24 @@ export function StudentForm({
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
-                <Field data-invalid={isInvalid}>
+                <Field className="max-w-sm">
                   <FieldLabel htmlFor={field.name}>Cédula Escolar</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && (
-                    <FieldError
-                      errors={field.state.meta.errors}
+                  <InputGroup>
+                    <InputGroupInput
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
                     />
-                  )}
+                    {field.state.meta.isValidating && (
+                      <InputGroupAddon align="inline-end">
+                        <Loader2 className="animate-spin" />
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
@@ -140,7 +156,9 @@ export function StudentForm({
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Correo Electrónico</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>
+                    Correo Electrónico
+                  </FieldLabel>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -157,13 +175,52 @@ export function StudentForm({
           </form.Field>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form.Field name="birthDate">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid} className="max-w-sm">
+                  <FieldLabel htmlFor={field.name}>
+                    Fecha de Nacimiento
+                  </FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="date"
+                    value={
+                      field.state.value
+                        ? new Date(field.state.value)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onBlur={field.handleBlur}
+                    onChange={(e) => {
+                      const date = new Date(e.target.value + "T00:00:00");
+                      if (!isNaN(date.getTime())) {
+                        field.handleChange(date);
+                      }
+                    }}
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+        </div>
+
         <form.Field name="phone">
           {(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Teléfono Representante / Contacto</FieldLabel>
+                <FieldLabel htmlFor={field.name}>
+                  Teléfono Representante / Contacto
+                </FieldLabel>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -184,7 +241,9 @@ export function StudentForm({
               field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Dirección de Habitación</FieldLabel>
+                <FieldLabel htmlFor={field.name}>
+                  Dirección de Habitación
+                </FieldLabel>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -216,7 +275,9 @@ export function StudentForm({
                 {isSubmitting ? (
                   <Loader2 className="animate-spin" />
                 ) : (
-                  <>{initialData ? "Guardar Cambios" : "Registrar Estudiante"}</>
+                  <>
+                    {initialData ? "Guardar Cambios" : "Registrar Estudiante"}
+                  </>
                 )}
               </Button>
             )}

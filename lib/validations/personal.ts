@@ -1,4 +1,8 @@
 import z from "zod";
+import {
+  educationalLevelEnum,
+  educationalRolesEnum,
+} from "../db/schema";
 
 export const personalFormSchema = z.object({
   id: z.string().optional(),
@@ -20,11 +24,12 @@ export const personalFormSchema = z.object({
     .string()
     .min(5, "La dirección es obligatoria")
     .max(255, "La dirección es demasiado larga"),
-  role: z
-    .string()
-    .min(3, "El cargo es obligatorio")
-    .max(100, "El cargo es demasiado largo"),
-  photoUrl: z.url("URL de imagen no válida").optional().or(z.literal("")),
+  role: z.enum(educationalRolesEnum.enumValues, "El cargo es obligatorio"),
+  educationalLevel: z.enum(
+    educationalLevelEnum.enumValues,
+    "El nivel educativo es obligatorio",
+  ),
+  photoUrl: z.string().optional().or(z.literal("")),
   order: z.number().int(),
 });
 

@@ -1,6 +1,10 @@
 "use client";
 
 import { checkPersonalCedulaAction } from "@/actions/personal";
+import {
+  educationalLevelEnum,
+  educationalRolesEnum,
+} from "@/lib/db/schema";
 import { personalFormSchema } from "@/lib/validations/personal";
 import { useForm } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
@@ -8,6 +12,47 @@ import { AvatarUpload } from "../avatar-upload";
 import { Button } from "../ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "../ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+
+type EducationalRoleType = (typeof educationalRolesEnum.enumValues)[number];
+
+export const educationalRolesLabels: Record<EducationalRoleType, string> = {
+  preschool_teacher: "Docente de Aula (Educación Inicial)",
+  primary_school_teacher: "Docente de Aula (Educación Primaria)",
+  specialist_teacher:
+    "Docente de Especialidad (Matemática, Castellano, Biología)",
+  physical_education_teacher: "Docente de Educación Física",
+  integrated_classroom_teacher: "Docente de Aula Integrada",
+  learning_resource_librarian:
+    "Docente de Recurso para el Aprendizaje (Biblioteca)",
+  culture_teacher: "Docente de Cultura",
+  school_garden_teacher: "Docente de Manos a la Siembra",
+  teacher_coordinator: "Docente con Función de Coordinación",
+  it_teacher: "Docente de Informática",
+};
+
+type EducationalLevelType = (typeof educationalLevelEnum.enumValues)[number];
+
+export const educationalLevelsLabels: Record<EducationalLevelType, string> = {
+  associate_degree: "Técnico Superior Universitario (TSU)",
+  bachelor_degree: "Licenciatura",
+  master_degree: "Maestría",
+  doctorate_degree: "Doctorado",
+  postgraduate_diploma: "Postgrado",
+  other: "Otro",
+};
+
 
 interface PersonalFormProps {
   initialData?: Partial<personalFormSchema>;
@@ -29,7 +74,8 @@ export function PersonalForm({
       email: initialData?.email ?? "",
       phone: initialData?.phone ?? "",
       address: initialData?.address ?? "",
-      role: initialData?.role ?? "",
+      role: initialData?.role ?? "primary_school_teacher",
+      educationalLevel: initialData?.educationalLevel ?? "bachelor_degree",
       photoUrl: initialData?.photoUrl ?? "",
       order: initialData?.order ?? 0,
     } as personalFormSchema,
@@ -128,12 +174,10 @@ export function PersonalForm({
             validators={{
               onChangeAsync: async ({ value }) => {
                 if (!value || value.length < 5) return undefined;
-                const { error, status } = await checkPersonalCedulaAction(
+                const { error } = await checkPersonalCedulaAction(
                   value,
                   form.state.values.id,
                 );
-                console.log(error, status);
-
                 return error ? { message: error } : undefined;
               },
             }}
@@ -142,16 +186,23 @@ export function PersonalForm({
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
-                <Field data-invalid={isInvalid}>
+                <Field className="max-w-sm">
                   <FieldLabel htmlFor={field.name}>Cédula</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                  />
+                  <InputGroup>
+                    <InputGroupInput
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                    />
+                    {field.state.meta.isValidating && (
+                      <InputGroupAddon align="inline-end">
+                        <Loader2 className="animate-spin" />
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
@@ -212,14 +263,55 @@ export function PersonalForm({
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={field.name}>Cargo / Rol</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
+                  <Select
                     value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                  />
+                    onValueChange={(value) =>
+                      field.handleChange(value as EducationalRoleType)
+                    }
+                  >
+                    <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                      <SelectValue placeholder="Seleccione un cargo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {educationalRolesEnum.enumValues.map((role) => (
+                        <SelectItem key={role} value={role}>
+                          {educationalRolesLabels[role]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form.Field name="educationalLevel">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid} className="max-w-sm">
+                  <FieldLabel htmlFor={field.name}>Nivel Educativo</FieldLabel>
+                  <Select
+                    value={field.state.value}
+                    onValueChange={(value) =>
+                      field.handleChange(value as EducationalLevelType)
+                    }
+                  >
+                    <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                      <SelectValue placeholder="Seleccione un nivel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {educationalLevelEnum.enumValues.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {educationalLevelsLabels[level]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );

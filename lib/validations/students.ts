@@ -21,6 +21,12 @@ export const studentFormSchema = z.object({
     .string()
     .min(5, "La dirección es obligatoria")
     .max(255, "La dirección es demasiado larga"),
+  birthDate: z.date({
+    error: (issue) =>
+      issue.input === undefined
+        ? "La fecha de nacimiento es obligatoria"
+        : "Fecha de nacimiento inválida",
+  }),
 });
 
 export type studentFormSchema = z.infer<typeof studentFormSchema>;
