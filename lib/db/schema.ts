@@ -38,10 +38,28 @@ export const calendarEventTypeEnum = pgEnum("calendar_event_type", [
   "other", // otro
 ]);
 
-export const impactTypeEnum = pgEnum("impact_type", [
-  "low", // bajo
-  "medium", // medio
-  "high", // alto
+export const educationalRolesEnum = pgEnum("educational_roles", [
+  "preschool_teacher", // Docente de Aula (Educación Inicial)
+  "primary_school_teacher", // Docente de Aula (Educación Primaria)
+  "specialist_teacher", // Docente de Especialidad
+  "physical_education_teacher", // Docente de Educación Física
+  "integrated_classroom_teacher", // Docente de Aula Integrada
+  "learning_resource_librarian", // Docente de Recurso para el Aprendizaje (Biblioteca)
+  "culture_teacher", // Docente de Cultura
+  "school_garden_teacher", // Docente de Manos a la Siembra
+  "teacher_coordinator", // Docente con Función de Coordinación
+  "it_teacher", // Docente de Informática
+  // "principal", // Director(a)
+  // "administrative_vice_principal", // Subdirector(a) Administrativo
+  // "academic_vice_principal", // Subdirector(a) Pedagógico
+]);
+
+export const educationalLevelEnum = pgEnum("educational_level", [
+  "associate_degree", // TSU (Técnico Superior Universitario)
+  "bachelor_degree", // Licenciatura
+  "master_degree", // Maestría
+  "doctorate_degree", // Doctorado
+  "postgraduate_diploma", // Postgrado
 ]);
 
 export const user = pgTable("user", {
@@ -176,12 +194,13 @@ export const personal = pgTable("personal", {
   firstName: varchar("first_name", { length: 100 }).notNull(),
   lastName: varchar("last_name", { length: 100 }).notNull(),
   cedula: varchar("cedula", { length: 100 }).notNull().unique(),
-  email: varchar("email", { length: 100 }).notNull().unique(),
-  phone: varchar("phone", { length: 100 }).notNull(),
+  email: varchar("email", { length: 100 }),
+  phone: varchar("phone", { length: 100 }),
   address: varchar("address", { length: 255 }).notNull(),
-  role: varchar("role", { length: 100 }).notNull(),
+  role: educationalRolesEnum("role").notNull(),
   photoUrl: text("photo_url"),
   order: integer("order").notNull().default(0),
+  educationalLevel: educationalLevelEnum("educational_level").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -194,9 +213,10 @@ export const students = pgTable("students", {
   firstName: varchar("first_name", { length: 100 }).notNull(),
   lastName: varchar("last_name", { length: 100 }).notNull(),
   cedulaStudent: varchar("cedula_student", { length: 100 }).notNull().unique(),
-  email: varchar("email", { length: 100 }).notNull().unique(),
-  phone: varchar("phone", { length: 100 }).notNull(),
   address: varchar("address", { length: 255 }).notNull(),
+  birthDate: date("birth_date", { mode: "date" }).notNull(),
+  email: varchar("email", { length: 100 }),
+  phone: varchar("phone", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -254,6 +274,13 @@ export const calendarEvents = pgTable("calendar_events", {
     .notNull(),
 });
 
+export const calendarEventsRelations = relations(
+  calendarEvents,
+  ({ many }) => ({
+    activities: many(calendarActivities),
+  }),
+);
+
 export const calendarActivities = pgTable("calendar_activities", {
   id: uuid("id").defaultRandom().primaryKey(),
   schoolPeriodId: uuid("school_period_id")
@@ -267,11 +294,12 @@ export const calendarActivities = pgTable("calendar_activities", {
       onDelete: "set null",
     },
   ),
-  calendarEventId: uuid("calendar_event_id")
-    .references(() => calendarEvents.id, {
+  calendarEventId: uuid("calendar_event_id").references(
+    () => calendarEvents.id,
+    {
       onDelete: "set null",
-    })
-    .notNull(),
+    },
+  ),
   title: varchar("title", { length: 200 }).notNull(),
   description: text("description"),
   startDate: date("start_date", { mode: "date" }).notNull(),
@@ -282,7 +310,6 @@ export const calendarActivities = pgTable("calendar_activities", {
   status: activityStatusEnum("status").notNull().default("planned"),
   results: text("results"),
   observations: text("observations"),
-  impact: impactTypeEnum("impact").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -348,7 +375,7 @@ export const calendarActivitiesPersonal = pgTable(
 
 export const calendarActivitiesRelations = relations(
   calendarActivities,
-  ({ one }) => ({
+  ({ one, many }) => ({
     schoolPeriod: one(schoolPeriods, {
       fields: [calendarActivities.schoolPeriodId],
       references: [schoolPeriods.id],
@@ -357,6 +384,13 @@ export const calendarActivitiesRelations = relations(
       fields: [calendarActivities.pedagogicalMomentId],
       references: [pedagogicalMoments.id],
     }),
+    calendarEvent: one(calendarEvents, {
+      fields: [calendarActivities.calendarEventId],
+      references: [calendarEvents.id],
+    }),
+    evidence: many(calendarActivitiesEvidence),
+    personal: many(calendarActivitiesPersonal),
+    students: many(calendarActivitiesStudents),
   }),
 );
 
@@ -394,6 +428,10 @@ export const calendarActivitiesStudentsRelations = relations(
   }),
 );
 
+export const studentsRelations = relations(students, ({ many }) => ({
+  activities: many(calendarActivitiesStudents),
+}));
+
 export const calendarActivitiesPersonalRelations = relations(
   calendarActivitiesPersonal,
   ({ one }) => ({
@@ -407,6 +445,10 @@ export const calendarActivitiesPersonalRelations = relations(
     }),
   }),
 );
+
+export const personalRelations = relations(personal, ({ many }) => ({
+  activities: many(calendarActivitiesPersonal),
+}));
 
 export const calendarActivitiesEvidenceRelations = relations(
   calendarActivitiesEvidence,
