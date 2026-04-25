@@ -30,10 +30,23 @@ export const studentColumns: ColumnDef<studentFormSchema>[] = [
     header: "Teléfono",
   },
   {
+    accessorKey: "birthDate",
+    header: "Fecha de Nacimiento",
+    cell: ({ row }) => {
+      const date = row.original.birthDate;
+      if (!date) return "-";
+      return new Date(date).toLocaleDateString("es-VE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    },
+  },
+  {
     accessorKey: "address",
     header: "Dirección",
     cell: ({ row }) => (
-      <div className="max-w-[200px] truncate" title={row.original.address}>
+      <div className="max-w-50 truncate" title={row.original.address}>
         {row.original.address}
       </div>
     ),
